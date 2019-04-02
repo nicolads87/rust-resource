@@ -5,7 +5,7 @@ extern crate serde;
 extern crate serde_json;
 use serde::{Deserialize, Serialize};
 use crate::resource::{get, query, Query};
-
+use tokio::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Person {
@@ -50,10 +50,12 @@ fn main() {
     println!("u2: {:?}", u2);
 
 
-    let u3: Get<Person> = get("localhost:8000");
+    let u3  = get("localhost:8000").then(|result: Result<Person, _>| {
+
+    });
     let u4: Query<Person> = query("http:localhost:8080/all");
 
-    println!("u3: {:?}", u3);
+    //println!("u3: {:?}", u3);
     println!("u4: {:?}", u4);
 
     println!("Hello, world!");

@@ -21,43 +21,62 @@
 //!THE SOFTWARE.
 
 
-
+use std::io;
 use serde::Deserialize;
 use serde_json::Error;
-
-
+use tokio::prelude::{Future, Poll, Async};
 
 #[derive(Debug)]
 pub struct Get<T> {
-    data: T
+    data: Option<T>
 }
+
 
 #[derive(Debug)]
 pub struct Query<T> {
 
     data: Vec<T>
+}
 
+impl<'a,T> Future for Get<T>
+    where
+        T: Deserialize<'a>
+{
+    type Item = T;
+    type Error = io::Error;
+
+    fn poll(&mut self) -> Poll<T, io::Error> {
+        println!("call poll");
+        loop {
+            println!("call poll inside loop");
+            let data = r#"
+            {
+                "name": "John Doe",
+                "age": 43,
+                "phones": [
+                    "+44 1234567",
+                    "+44 2345678"
+                ]
+            }"#;
+
+            let t: T  = serde_json::from_str(data).unwrap();
+            //self.data = Some(t);
+            Ok(t)
+        }
+
+    }
 }
 
 
-
-pub fn get<'a, T>(url: &str) -> Get<T> where  T: Deserialize<'a> {
-
+pub fn get<'a, T>(url: &str) -> Get<T>
+    where
+        T: Deserialize<'a>
+{
+    println!("call get");
     println!("url: {}", url);
-    let data = r#"
-        {
-            "name": "John Doe",
-            "age": 43,
-            "phones": [
-                "+44 1234567",
-                "+44 2345678"
-            ]
-        }"#;
-
-    let t: T  = serde_json::from_str(data).unwrap();
 
     Get {
-        data: t
+        data: None
     }
 }
 
