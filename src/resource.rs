@@ -24,7 +24,7 @@
 use std::io;
 use serde::Deserialize;
 use serde_json::Error;
-use tokio::prelude::{Future, Poll, Async};
+use tokio::prelude::*;
 
 #[derive(Debug)]
 pub struct Get<T> {
@@ -47,7 +47,7 @@ impl<'a,T> Future for Get<T>
 
     fn poll(&mut self) -> Poll<T, io::Error> {
         println!("call poll");
-        loop {
+
             println!("call poll inside loop");
             let data = r#"
             {
@@ -61,8 +61,9 @@ impl<'a,T> Future for Get<T>
 
             let t: T  = serde_json::from_str(data).unwrap();
             //self.data = Some(t);
-            Ok(t)
-        }
+            //return Ok((self.amt, reader, writer).into());
+            return Ok(Async::Ready(t).into());
+
 
     }
 }

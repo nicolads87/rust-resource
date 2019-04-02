@@ -50,9 +50,12 @@ fn main() {
     println!("u2: {:?}", u2);
 
 
-    let u3  = get("localhost:8000").then(|result: Result<Person, _>| {
+    let u3:Get<Person>  = get("localhost:8000");
 
+    u3.then(|result| {
+       println!("{:?}", result.unwrap());
     });
+
     let u4: Query<Person> = query("http:localhost:8080/all");
 
     //println!("u3: {:?}", u3);
