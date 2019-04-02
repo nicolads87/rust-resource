@@ -1,6 +1,6 @@
 //!The MIT License
 //!
-//!Copyright (c) 2010-2019 Google, Inc. http://angularjs.org
+//!Copyright (c) 2019 nicolads87
 //!
 //!Permission is hereby granted, free of charge, to any person obtaining a copy
 //!of this software and associated documentation files (the "Software"), to deal
@@ -21,17 +21,112 @@
 //!THE SOFTWARE.
 
 
+
+use serde::Deserialize;
+use serde_json::Error;
+
+
+
+#[derive(Debug)]
+pub struct Get<T> {
+    data: T
+}
+
+#[derive(Debug)]
+pub struct Query<T> {
+
+    data: Vec<T>
+
+}
+
+
+
+pub fn get<'a, T>(url: &str) -> Get<T> where  T: Deserialize<'a> {
+
+    println!("url: {}", url);
+    let data = r#"
+        {
+            "name": "John Doe",
+            "age": 43,
+            "phones": [
+                "+44 1234567",
+                "+44 2345678"
+            ]
+        }"#;
+
+    let t: T  = serde_json::from_str(data).unwrap();
+
+    Get {
+        data: t
+    }
+}
+
+pub fn query<'a, T>(url: &str) -> Query<T> where  T: Deserialize<'a> {
+
+    println!("url: {}", url);
+    let data = r#"
+        {
+            "name": "John Doe",
+            "age": 43,
+            "phones": [
+                "+44 1234567",
+                "+44 2345678"
+            ]
+        }"#;
+
+    let t: T  = serde_json::from_str(data).unwrap();
+
+    Query {
+        data: vec![t]
+    }
+}
+
 ///A resource "class" object with methods for the default set of resource actions optionally extended with custom actions.
 /// The default set contains these actions:
 
-pub trait Resource<Url=String, ParamsDefault=Vec<String>, Actions=Vec<String>, Options=Vec<String>> {
+pub trait Resource<ParamsDefault=Vec<String>, Actions=Vec<String>, Options=Vec<String>> {
 
-    type Item;
+    type Url;
 
-    fn get(&self) -> Self::Item;
+    fn get<'a, T>(&self) -> Result<T, Error> where  T: Deserialize<'a> {
 
-    fn save(&self) -> Self::Item;
+
+        //println!("{}", Self::Url);
+        let data = r#"
+        {
+            "name": "John Doe",
+            "age": 43,
+            "phones": [
+                "+44 1234567",
+                "+44 2345678"
+            ]
+        }"#;
+
+        let t: T  = serde_json::from_str(data).unwrap();
+        Ok(t)
+    }
+
+
+    //fn save(&self) -> Self::Item;
+
+    fn query<'a, T>(&self) -> Result<Vec<T>, Error> where  T: Deserialize<'a> {
+
+        let data = r#"
+        {
+            "name": "Foo Bar",
+            "age": 30,
+            "phones": [
+                "+44 1234567",
+                "+44 2345678"
+            ]
+        }"#;
+
+        let t: T  = serde_json::from_str(data).unwrap();
+        Ok(vec![t])
+    }
 
 
 }
+
+
 
