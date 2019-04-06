@@ -24,11 +24,50 @@
 use std::io;
 use serde::Deserialize;
 use serde_json::Error;
-use tokio::prelude::*;
+extern crate tokio;
+extern crate futures;
+
+
+// `Poll` is a type alias for `Result<Async<T>, E>`
+use futures::{Future, Async, Poll};
+
+#[derive(Debug)]
+enum State<T> {
+    Consuming(T),
+    None,
+    Done
+}
 
 #[derive(Debug)]
 pub struct Get<T> {
-    data: Option<T>
+
+    state: State<T>
+}
+
+impl<'a, T> Future for Get<T> where  T: Deserialize<'a> {
+    type Item = T;
+    type Error = ();
+
+    fn poll(&mut self) -> Poll<T, Self::Error> {
+        let data = r#"
+        {
+            "name": "John Doe Poll",
+            "age": 30,
+            "phones": [
+                "+44 1234567",
+                "+44 2345678"
+            ]
+        }"#;
+
+        let t: T  = serde_json::from_str(data).unwrap();
+        self.state = State::Done;
+        Ok(Async::Ready(t))
+
+
+
+
+
+    }
 }
 
 
@@ -38,46 +77,18 @@ pub struct Query<T> {
     data: Vec<T>
 }
 
-impl<'a,T> Future for Get<T>
-    where
-        T: Deserialize<'a>
-{
-    type Item = T;
-    type Error = io::Error;
 
-    fn poll(&mut self) -> Poll<T, io::Error> {
-        println!("call poll");
-
-            println!("call poll inside loop");
-            let data = r#"
-            {
-                "name": "John Doe",
-                "age": 43,
-                "phones": [
-                    "+44 1234567",
-                    "+44 2345678"
-                ]
-            }"#;
-
-            let t: T  = serde_json::from_str(data).unwrap();
-            //self.data = Some(t);
-            //return Ok((self.amt, reader, writer).into());
-            return Ok(Async::Ready(t).into());
-
-
-    }
-}
 
 
 pub fn get<'a, T>(url: &str) -> Get<T>
     where
-        T: Deserialize<'a>
+        T: Deserialize<'a>,
 {
     println!("call get");
     println!("url: {}", url);
 
     Get {
-        data: None
+        state: State::Done
     }
 }
 
