@@ -1,10 +1,10 @@
 
 mod resource;
-use resource::{Resource, Get};
+//use resource::{Get};
 extern crate serde;
 extern crate serde_json;
 use serde::{Deserialize, Serialize};
-use crate::resource::{get, query, Query};
+use crate::resource::{get, Get};
 use std::fmt;
 
 extern crate tokio;
@@ -23,13 +23,9 @@ struct Person {
 }
 
 
-struct Service {
 
-}
 
 fn main() {
-
-
 
     struct HelloWorld;
 
@@ -86,10 +82,7 @@ fn main() {
 
     tokio::run(future);
 
-    impl Resource for Service {
-        type Url = String;
 
-    }
 
 
     impl Person {
@@ -107,13 +100,7 @@ fn main() {
 
 
 
-    let service = Service{};
 
-    let u: Person = service.get().unwrap();
-
-    let u2:Vec<Person> = service.query().unwrap();
-    println!("u: {:?}", u);
-    println!("u2: {:?}", u2);
 
 
 
@@ -123,18 +110,17 @@ fn main() {
     println!("u3: Get<Person> {:?}", u3);
     let future_u3 = u3.then(|person| {
         println!("Get<Person> {:?}", person);
+
         Ok(())
 
     });
 
 
+
     tokio::run(future_u3);
 
 
-    let u4: Query<Person> = query("http:localhost:8080/all");
 
-    //println!("u3: {:?}", u3);
-    println!("u4: {:?}", u4);
 
     println!("Hello, world!");
 

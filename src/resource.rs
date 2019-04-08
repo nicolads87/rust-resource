@@ -32,8 +32,8 @@ extern crate futures;
 use futures::{Future, Async, Poll};
 
 #[derive(Debug)]
-enum State<T> {
-    Consuming(T),
+enum State {
+    Consuming,
     None,
     Done
 }
@@ -41,7 +41,8 @@ enum State<T> {
 #[derive(Debug)]
 pub struct Get<T> {
 
-    state: State<T>
+    state: State,
+    data: Option<T>
 }
 
 impl<'a, T> Future for Get<T> where  T: Deserialize<'a> {
@@ -61,8 +62,18 @@ impl<'a, T> Future for Get<T> where  T: Deserialize<'a> {
 
         let t: T  = serde_json::from_str(data).unwrap();
         self.state = State::Done;
-        Ok(Async::Ready(t))
+        self.data = Some(t);
 
+
+        match &self.data {
+
+            None => return Ok(Async::NotReady),
+            Some(_) => {
+                let data = self.data.take().unwrap();
+                return Ok(Async::Ready(data))
+            }
+
+        };
 
 
 
@@ -71,93 +82,22 @@ impl<'a, T> Future for Get<T> where  T: Deserialize<'a> {
 }
 
 
-#[derive(Debug)]
-pub struct Query<T> {
-
-    data: Vec<T>
-}
 
 
 
 
-pub fn get<'a, T>(url: &str) -> Get<T>
-    where
-        T: Deserialize<'a>,
+pub fn get<T>(url: &str) -> Get<T>
+
 {
     println!("call get");
     println!("url: {}", url);
 
     Get {
-        state: State::Done
+        state: State::Consuming,
+        data: None
     }
 }
 
-pub fn query<'a, T>(url: &str) -> Query<T> where  T: Deserialize<'a> {
-
-    println!("url: {}", url);
-    let data = r#"
-        {
-            "name": "John Doe",
-            "age": 43,
-            "phones": [
-                "+44 1234567",
-                "+44 2345678"
-            ]
-        }"#;
-
-    let t: T  = serde_json::from_str(data).unwrap();
-
-    Query {
-        data: vec![t]
-    }
-}
-
-///A resource "class" object with methods for the default set of resource actions optionally extended with custom actions.
-/// The default set contains these actions:
-
-pub trait Resource<ParamsDefault=Vec<String>, Actions=Vec<String>, Options=Vec<String>> {
-
-    type Url;
-
-    fn get<'a, T>(&self) -> Result<T, Error> where  T: Deserialize<'a> {
-
-
-        //println!("{}", Self::Url);
-        let data = r#"
-        {
-            "name": "John Doe",
-            "age": 43,
-            "phones": [
-                "+44 1234567",
-                "+44 2345678"
-            ]
-        }"#;
-
-        let t: T  = serde_json::from_str(data).unwrap();
-        Ok(t)
-    }
-
-
-    //fn save(&self) -> Self::Item;
-
-    fn query<'a, T>(&self) -> Result<Vec<T>, Error> where  T: Deserialize<'a> {
-
-        let data = r#"
-        {
-            "name": "Foo Bar",
-            "age": 30,
-            "phones": [
-                "+44 1234567",
-                "+44 2345678"
-            ]
-        }"#;
-
-        let t: T  = serde_json::from_str(data).unwrap();
-        Ok(vec![t])
-    }
-
-
-}
 
 
 
