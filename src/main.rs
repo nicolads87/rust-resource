@@ -4,7 +4,7 @@ mod resource;
 extern crate serde;
 extern crate serde_json;
 use serde::{Deserialize, Serialize};
-use crate::resource::{get, Get};
+use crate::resource::{get, Get, query, Query};
 use std::fmt;
 
 extern crate tokio;
@@ -118,6 +118,20 @@ fn main() {
 
 
     tokio::run(future_u3);
+
+
+    let u4: Query<Person>  = query("localhost:8000");
+    println!("u4: Query<Person> {:?}", u4);
+    let future_u4 = u4.then(|persons| {
+        println!("Query<Person>  {:?}", persons);
+
+        Ok(())
+
+    });
+
+
+
+    tokio::run(future_u4);
 
 
 

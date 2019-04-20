@@ -45,20 +45,20 @@ pub struct Get<T> {
     data: Option<T>
 }
 
+
+#[derive(Debug)]
+pub struct Query<T> {
+
+    state: State,
+    data: Option<Vec<T>>
+}
+
 impl<'a, T> Future for Get<T> where  T: Deserialize<'a> {
     type Item = T;
     type Error = ();
 
-    fn poll(&mut self) -> Poll<T, Self::Error> {
-        let data = r#"
-        {
-            "name": "John Doe Poll",
-            "age": 30,
-            "phones": [
-                "+44 1234567",
-                "+44 2345678"
-            ]
-        }"#;
+    fn poll(&mut self) -> Poll<Self::Item, Self::Error> {
+        let data = raw_json();
 
         let t: T  = serde_json::from_str(data).unwrap();
         self.state = State::Done;
@@ -75,7 +75,30 @@ impl<'a, T> Future for Get<T> where  T: Deserialize<'a> {
 
         };
 
+    }
+}
 
+impl<'a, T> Future for Query<T> where  T: Deserialize<'a> {
+    type Item = Vec<T>;
+    type Error = ();
+
+    fn poll(&mut self) -> Poll<Self::Item, Self::Error> {
+        let data = raw_json();
+
+        let t: T  = serde_json::from_str(data).unwrap();
+        self.state = State::Done;
+        self.data = Some(vec![t]);
+
+
+        match &self.data {
+
+            None => return Ok(Async::NotReady),
+            Some(_) => {
+                let data: Vec<T> = self.data.take().unwrap();
+                return Ok(Async::Ready(data))
+            }
+
+        };
 
 
     }
@@ -84,7 +107,20 @@ impl<'a, T> Future for Get<T> where  T: Deserialize<'a> {
 
 
 
+fn raw_json() -> &'static str {
 
+    let json = r#"
+        {
+            "name": "John Doe Poll",
+            "age": 30,
+            "phones": [
+                "+44 1234567",
+                "+44 2345678"
+            ]
+        }"#;
+
+    json
+}
 
 pub fn get<T>(url: &str) -> Get<T>
 
@@ -93,6 +129,18 @@ pub fn get<T>(url: &str) -> Get<T>
     println!("url: {}", url);
 
     Get {
+        state: State::Consuming,
+        data: None
+    }
+}
+
+pub fn query<T>(url: &str) -> Query<T>
+
+{
+    println!("call query");
+    println!("url: {}", url);
+
+    Query {
         state: State::Consuming,
         data: None
     }
