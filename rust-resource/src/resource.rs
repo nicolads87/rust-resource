@@ -21,100 +21,104 @@
 //!THE SOFTWARE.
 
 
-use std::io;
-use serde::Deserialize;
-use serde_json::Error;
-extern crate tokio;
-extern crate futures;
-extern crate reqwest;
-extern crate serde;
-extern crate serde_json;
-// `Poll` is a type alias for `Result<Async<T>, E>`
-use futures::{Future, Async, Poll};
-use std::collections::HashMap;
-use self::reqwest::Response;
-use std::fmt::Debug;
 
 
-#[derive(Debug)]
-enum State {
-    Consuming,
-    None,
-    Done
-}
-
-#[derive(Debug)]
-pub struct Get<T> {
-
-    state: State,
-    data: Option<T>
-}
 
 
-#[derive(Debug)]
-pub struct Query<T> {
-
-    state: State,
-    data: Option<Vec<T>>
-}
-
-impl<'a, T> Future for Get<T> where  T: Deserialize<'a> {
-    type Item = T;
-    type Error = ();
-
-    fn poll(&mut self) -> Poll<Self::Item, Self::Error> {
-        let data = raw_json();
-
-        let t: T  = serde_json::from_str(data).unwrap();
-        self.state = State::Done;
-        self.data = Some(t);
 
 
-        match &self.data {
+pub mod tests {
+    use std::io;
+    use serde::Deserialize;
+    use serde_json::Error;
+    extern crate tokio;
+    extern crate futures;
+    extern crate reqwest;
+    extern crate serde;
+    extern crate serde_json;
+    // `Poll` is a type alias for `Result<Async<T>, E>`
+    use futures::{Future, Async, Poll};
+    use std::collections::HashMap;
 
-            None => return Ok(Async::NotReady),
-            Some(_) => {
-                let data = self.data.take().unwrap();
-                return Ok(Async::Ready(data))
-            }
-
-        };
-
+    #[derive(Debug)]
+    enum State {
+        Consuming,
+        None,
+        Done
     }
-}
 
-impl<'a, T> Future for Query<T> where  T: Deserialize<'a> {
-    type Item = Vec<T>;
-    type Error = ();
+    #[derive(Debug)]
+    pub struct Get<T> {
 
-    fn poll(&mut self) -> Poll<Self::Item, Self::Error> {
-        let data = raw_json();
-
-        let t: T  = serde_json::from_str(data).unwrap();
-        self.state = State::Done;
-        self.data = Some(vec![t]);
-
-
-        match &self.data {
-
-            None => return Ok(Async::NotReady),
-            Some(_) => {
-                let data: Vec<T> = self.data.take().unwrap();
-                return Ok(Async::Ready(data))
-            }
-
-        };
-
-
+        state: State,
+        data: Option<T>
     }
-}
+
+
+    #[derive(Debug)]
+    pub struct Query<T> {
+
+        state: State,
+        data: Option<Vec<T>>
+    }
+
+    impl<'a, T> Future for Get<T> where  T: Deserialize<'a> {
+        type Item = T;
+        type Error = ();
+
+        fn poll(&mut self) -> Poll<Self::Item, Self::Error> {
+            let data = raw_json();
+
+            let t: T  = serde_json::from_str(data).unwrap();
+            self.state = State::Done;
+            self.data = Some(t);
+
+
+            match &self.data {
+
+                None => return Ok(Async::NotReady),
+                Some(_) => {
+                    let data = self.data.take().unwrap();
+                    return Ok(Async::Ready(data))
+                }
+
+            };
+
+        }
+    }
+
+    impl<'a, T> Future for Query<T> where  T: Deserialize<'a> {
+        type Item = Vec<T>;
+        type Error = ();
+
+        fn poll(&mut self) -> Poll<Self::Item, Self::Error> {
+            let data = raw_json();
+
+            let t: T  = serde_json::from_str(data).unwrap();
+            self.state = State::Done;
+            self.data = Some(vec![t]);
+
+
+            match &self.data {
+
+                None => return Ok(Async::NotReady),
+                Some(_) => {
+                    let data: Vec<T> = self.data.take().unwrap();
+                    return Ok(Async::Ready(data))
+                }
+
+            };
+
+
+        }
+    }
 
 
 
 
-fn raw_json() -> &'static str {
+    fn raw_json() -> &'static str {
 
-    let json = r#"
+        let json = r#"
         {
             "name": "John Doe Poll",
             "age": 30,
@@ -128,78 +132,86 @@ fn raw_json() -> &'static str {
 
 
 
-    json
-}
+        json
+    }
 
-pub fn get<T>(url: &str) -> Get<T>
+    pub fn get<T>(url: &str) -> Get<T>
 
-{
-    println!("call get");
-    println!("url: {}", url);
+    {
+        println!("call get");
+        println!("url: {}", url);
 
-    Get {
-        state: State::Consuming,
-        data: None
+        Get {
+            state: State::Consuming,
+            data: None
+        }
+    }
+
+    pub fn query<T>(url: &str) -> Query<T>
+
+    {
+        println!("call query");
+        println!("url: {}", url);
+
+        Query {
+            state: State::Consuming,
+            data: None
+        }
     }
 }
 
-pub fn query<T>(url: &str) -> Query<T>
 
-{
-    println!("call query");
-    println!("url: {}", url);
+pub mod resource {
+    use serde::Deserialize;
+    use std::fmt::Debug;
+    use reqwest::Response;
 
-    Query {
-        state: State::Consuming,
-        data: None
+    pub struct Resource {
+        url: String
     }
-}
+
+    impl Resource {
+
+        pub fn get<T>(&self, params: Vec<(&'static str,&'static str)>) -> Result<T, String>
+
+            where  for<'de> T: Deserialize<'de> + Debug {
+
+            let mut url = self.url.clone();
+
+            //Given a template /path/:verb and parameter {verb: 'greet', salutation: 'Hello'} results in URL /path/greet?salutation=Hello.
+            for param in params {
+
+                let key = format!("{}{}", ":", param.0);
+                url = url.replace(&key, param.1);
+                println!("{:?}, {}", param, url);
+            }
 
 
-pub struct Resource {
-    url: String
-}
+            let result: Result<Response, _> = reqwest::get(&url);
+            println!("{:#?}", result);
 
-impl Resource {
+            //let aaa = result.unwrap().text();
 
-    pub fn get<T>(&self, params: Vec<(&'static str,&'static str)>) -> Result<T, String>
+            let json: Result<T, reqwest::Error> = result.unwrap().json();
 
-        where  for<'de> T: Deserialize<'de> + Debug {
+            let data: T = json.unwrap();
+            println!("{:#?}", data);
 
-        let mut url = self.url.clone();
+            Ok(data)
 
-        //Given a template /path/:verb and parameter {verb: 'greet', salutation: 'Hello'} results in URL /path/greet?salutation=Hello.
-        for param in params {
-
-            let key = format!("{}{}", ":", param.0);
-            url = url.replace(&key, param.1);
-            println!("{:?}, {}", param, url);
         }
 
 
-        let result: Result<Response, _> = reqwest::get(&url);
-        println!("{:#?}", result);
-
-        //let aaa = result.unwrap().text();
-
-        let json: Result<T, reqwest::Error> = result.unwrap().json();
-
-        let data: T = json.unwrap();
-        println!("{:#?}", data);
-
-        Ok(data)
-
     }
 
+    pub fn resource(url: &str) -> Resource {
 
-}
-
-pub fn resource(url: &str) -> Resource {
-
-    Resource {
-        url: String::from(url)
+        Resource {
+            url: String::from(url)
+        }
     }
 }
+
 
 
 

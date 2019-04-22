@@ -4,7 +4,7 @@ mod resource;
 extern crate serde;
 extern crate serde_json;
 use serde::{Deserialize, Serialize};
-use crate::resource::{get, Get, query, Query, resource, Resource};
+use crate::resource::resource::*;
 use std::fmt;
 
 extern crate tokio;
@@ -126,7 +126,7 @@ fn main() {
 
 
 
-
+/*
     let u3: Get<Person>  = get("localhost:8000");
     println!("u3: Get<Person> {:?}", u3);
     let future_u3 = u3.then(|person| {
@@ -155,7 +155,7 @@ fn main() {
     tokio::run(future_u4);
 
 
-
+*/
 
 
     //let resp = reqwest::get("https://samples.openweathermap.org/data/2.5/weather?lat=35&lon=139&appid=b6907d289e10d714a6e88b30761fae22");
