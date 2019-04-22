@@ -13,4 +13,3 @@ futures = "0.1"
 reqwest = "0.9.15"
 hello_macro = { path = "/Users/nicoladesimone/dev/rust/hello_macro" }
 rresource_derive = { path = "../rresource_derive" }
-rresource = { path = "../rresource" }

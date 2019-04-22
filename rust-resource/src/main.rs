@@ -20,9 +20,8 @@ extern crate hello_macro;
 #[macro_use]
 extern crate rresource_derive;
 
-extern crate rresource;
 
-use rresource::RResource;
+//use rresource::RResource;
 
 pub trait HelloMacro {
     fn hello_macro();
@@ -160,10 +159,18 @@ fn main() {
 
     //let resp = reqwest::get("https://samples.openweathermap.org/data/2.5/weather?lat=35&lon=139&appid=b6907d289e10d714a6e88b30761fae22");
 
-    let wheater_resource: Resource = resource("https://samples.openweathermap.org/data/2.5/weather?lat=:lat&lon=:lon&appid=:appid");
+    let HOST = "https://samples.openweathermap.org";
+    let PATH = "/data/2.5/weather?lat=:lat&lon=:lon&appid=:appid";
+
+    let wheater_resource: Resource = resource(HOST, PATH);
 
 
-    let result: Result<Wheater, _> = wheater_resource.get(vec![("lat", "35"), ("lon", "139"), ("appid", "b6907d289e10d714a6e88b30761fae22")]);
+
+    let params = vec![("lat", "35"), ("lon", "139"), ("appid", "b6907d289e10d714a6e88b30761fae22")];
+
+    let result: Result<Wheater, _> = wheater_resource.get(params);
+
+
     println!("Result<Wheater, _>  --> {:#?}", result);
 
     let weather: Wheater = result.unwrap();

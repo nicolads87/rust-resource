@@ -162,12 +162,25 @@ pub mod tests {
 
 
 pub mod resource {
+
+
+
     use serde::Deserialize;
     use std::fmt::Debug;
     use reqwest::Response;
 
+    pub trait RResource {
+
+        fn save(&self);
+    }
+
+
+
+
+
     pub struct Resource {
-        url: String
+        host: String,
+        path: String
     }
 
     impl Resource {
@@ -176,7 +189,7 @@ pub mod resource {
 
             where  for<'de> T: Deserialize<'de> + Debug {
 
-            let mut url = self.url.clone();
+            let mut url = format!("{}{}", &self.host, &self.path);
 
             //Given a template /path/:verb and parameter {verb: 'greet', salutation: 'Hello'} results in URL /path/greet?salutation=Hello.
             for param in params {
@@ -204,10 +217,11 @@ pub mod resource {
 
     }
 
-    pub fn resource(url: &str) -> Resource {
+    pub fn resource(host: &str, path: &str) -> Resource {
 
         Resource {
-            url: String::from(url)
+            host: String::from(host),
+            path: String::from(path)
         }
     }
 }

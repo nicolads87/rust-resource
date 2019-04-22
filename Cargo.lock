@@ -889,10 +889,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rresource"
-version = "0.1.0"
-
-[[package]]
 name = "rresource_derive"
 version = "0.1.0"
 dependencies = [
@@ -908,7 +904,6 @@ dependencies = [
  "futures 0.1.26 (registry+https://github.com/rust-lang/crates.io-index)",
  "hello_macro 0.1.0",
  "reqwest 0.9.15 (registry+https://github.com/rust-lang/crates.io-index)",
- "rresource 0.1.0",
  "rresource_derive 0.1.0",
  "serde 1.0.90 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.39 (registry+https://github.com/rust-lang/crates.io-index)",
