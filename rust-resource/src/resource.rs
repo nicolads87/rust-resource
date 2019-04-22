@@ -214,15 +214,14 @@ pub mod resource {
 
         }
 
-
-    }
-
-    pub fn resource(host: &str, path: &str) -> Resource {
-
-        Resource {
-            host: String::from(host),
-            path: String::from(path)
+        pub fn new(host: &str, path: &str) -> Resource {
+            Resource {
+                host: String::from(host),
+                path: String::from(path)
+            }
         }
+
+
     }
 }
 

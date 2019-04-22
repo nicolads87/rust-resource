@@ -159,10 +159,10 @@ fn main() {
 
     //let resp = reqwest::get("https://samples.openweathermap.org/data/2.5/weather?lat=35&lon=139&appid=b6907d289e10d714a6e88b30761fae22");
 
-    let HOST = "https://samples.openweathermap.org";
-    let PATH = "/data/2.5/weather?lat=:lat&lon=:lon&appid=:appid";
+    let host = "https://samples.openweathermap.org";
+    let path = "/data/2.5/weather?lat=:lat&lon=:lon&appid=:appid";
 
-    let wheater_resource: Resource = resource(HOST, PATH);
+    let wheater_resource: Resource = Resource::new(host, path);
 
 
 
