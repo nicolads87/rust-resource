@@ -1,11 +1,7 @@
-[package]
-name = "rust-resource"
-version = "0.1.0"
-authors = ["Nicola De Simone <nicola.ds87@gmail.com>"]
-edition = "2018"
+[workspace]
 
-[dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-tokio = "0.1.18"
-futures = "0.1"
+members = [
+    "rust-resource",
+    "rresource",
+    "rresource_derive",
+]

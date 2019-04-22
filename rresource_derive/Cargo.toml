@@ -1,0 +1,13 @@
+[package]
+name = "rresource_derive"
+version = "0.1.0"
+authors = ["Nicola De Simone <nicola.ds87@gmail.com>"]
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "0.14.4"
+quote = "0.6.3"
+reqwest = "0.9.15"

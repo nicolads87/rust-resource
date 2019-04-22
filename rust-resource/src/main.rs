@@ -4,7 +4,7 @@ mod resource;
 extern crate serde;
 extern crate serde_json;
 use serde::{Deserialize, Serialize};
-use crate::resource::{get, Get, query, Query};
+use crate::resource::{get, Get, query, Query, resource, Resource};
 use std::fmt;
 
 extern crate tokio;
@@ -13,6 +13,21 @@ extern crate futures;
 
 // `Poll` is a type alias for `Result<Async<T>, E>`
 use futures::{Future, Async, Poll};
+
+#[macro_use]
+extern crate hello_macro;
+
+#[macro_use]
+extern crate rresource_derive;
+
+extern crate rresource;
+
+use rresource::RResource;
+
+pub trait HelloMacro {
+    fn hello_macro();
+}
+
 
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -23,9 +38,20 @@ struct Person {
 }
 
 
+#[derive(Serialize, Deserialize, Debug, RResource)]
+struct Wheater {
+    base: String,
+    name: String,
+}
+#[derive(HelloMacro, RResource)]
+struct Pancakes;
+
 
 
 fn main() {
+
+    Pancakes::hello_macro();
+    //Pancakes::save();
 
     struct HelloWorld;
 
@@ -95,13 +121,8 @@ fn main() {
 
 
     let user = Person {name: String::from("Bar"), age: 9, phones: vec![]};
+
     user.print();
-
-
-
-
-
-
 
 
 
@@ -136,7 +157,19 @@ fn main() {
 
 
 
-    println!("Hello, world!");
+
+    //let resp = reqwest::get("https://samples.openweathermap.org/data/2.5/weather?lat=35&lon=139&appid=b6907d289e10d714a6e88b30761fae22");
+
+    let wheater_resource: Resource = resource("https://samples.openweathermap.org/data/2.5/weather?lat=:lat&lon=:lon&appid=:appid");
+
+
+    let result: Result<Wheater, _> = wheater_resource.get(vec![("lat", "35"), ("lon", "139"), ("appid", "b6907d289e10d714a6e88b30761fae22")]);
+    println!("Result<Wheater, _>  --> {:#?}", result);
+
+    let weather: Wheater = result.unwrap();
+
+
+    weather.save();
 
 
 }

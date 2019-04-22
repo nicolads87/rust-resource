@@ -26,10 +26,15 @@ use serde::Deserialize;
 use serde_json::Error;
 extern crate tokio;
 extern crate futures;
-
-
+extern crate reqwest;
+extern crate serde;
+extern crate serde_json;
 // `Poll` is a type alias for `Result<Async<T>, E>`
 use futures::{Future, Async, Poll};
+use std::collections::HashMap;
+use self::reqwest::Response;
+use std::fmt::Debug;
+
 
 #[derive(Debug)]
 enum State {
@@ -119,6 +124,10 @@ fn raw_json() -> &'static str {
             ]
         }"#;
 
+
+
+
+
     json
 }
 
@@ -145,6 +154,55 @@ pub fn query<T>(url: &str) -> Query<T>
         data: None
     }
 }
+
+
+pub struct Resource {
+    url: String
+}
+
+impl Resource {
+
+    pub fn get<T>(&self, params: Vec<(&'static str,&'static str)>) -> Result<T, String>
+
+        where  for<'de> T: Deserialize<'de> + Debug {
+
+        let mut url = self.url.clone();
+
+        //Given a template /path/:verb and parameter {verb: 'greet', salutation: 'Hello'} results in URL /path/greet?salutation=Hello.
+        for param in params {
+
+            let key = format!("{}{}", ":", param.0);
+            url = url.replace(&key, param.1);
+            println!("{:?}, {}", param, url);
+        }
+
+
+        let result: Result<Response, _> = reqwest::get(&url);
+        println!("{:#?}", result);
+
+        //let aaa = result.unwrap().text();
+
+        let json: Result<T, reqwest::Error> = result.unwrap().json();
+
+        let data: T = json.unwrap();
+        println!("{:#?}", data);
+
+        Ok(data)
+
+    }
+
+
+}
+
+pub fn resource(url: &str) -> Resource {
+
+    Resource {
+        url: String::from(url)
+    }
+}
+
+
+
 
 
 

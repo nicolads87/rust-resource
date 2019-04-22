@@ -1,0 +1,8 @@
+[package]
+name = "rresource"
+version = "0.1.0"
+authors = ["Nicola De Simone <nicola.ds87@gmail.com>"]
+edition = "2018"
+
+
+[dependencies]
