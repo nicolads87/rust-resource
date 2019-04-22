@@ -22,8 +22,8 @@ fn impl_rresource_macro(ast: &syn::DeriveInput) -> TokenStream {
     let name = &ast.ident;
     let gen = quote! {
         impl RResource for #name {
-            fn save(&self) {
-                println!("Hello, Save! My name is {}", stringify!(#name));
+            fn test(&self) {
+                println!("Hello, Test! My name is {}", stringify!(#name));
             }
         }
     };

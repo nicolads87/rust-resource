@@ -41,8 +41,9 @@ struct Person {
 struct Wheater {
     base: String,
     name: String,
+    id: u32
 }
-#[derive(HelloMacro, RResource)]
+#[derive(HelloMacro, RResource, Debug)]
 struct Pancakes;
 
 
@@ -173,10 +174,25 @@ fn main() {
 
     println!("Result<Wheater, _>  --> {:#?}", result);
 
-    let weather: Wheater = result.unwrap();
+    let mut weather: Wheater = result.unwrap();
 
 
+    let post_params = vec![("lat", "35"), ("lon", "139"), ("appid", "b6907d289e10d714a6e88b30761fae22")];
+
+    weather.name = String::from("London");
     weather.save();
+    weather.test();
+
+
+    let w = Wheater {
+        id: 0,
+        base: String::from("hsa8sabak"),
+        name: String::from("daja77aba")
+
+    };
+
+    w.save();
+
 
 
 }

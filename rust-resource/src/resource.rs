@@ -169,9 +169,14 @@ pub mod resource {
     use std::fmt::Debug;
     use reqwest::Response;
 
-    pub trait RResource {
+    pub trait RResource : Debug {
 
-        fn save(&self);
+        fn save(&self) {
+            println!("Hello, Save! Params are {:?}", self);
+        }
+
+        fn test(&self);
+
     }
 
 
@@ -203,7 +208,6 @@ pub mod resource {
             let result: Result<Response, _> = reqwest::get(&url);
             println!("{:#?}", result);
 
-            //let aaa = result.unwrap().text();
 
             let json: Result<T, reqwest::Error> = result.unwrap().json();
 
